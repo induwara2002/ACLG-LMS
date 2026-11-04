@@ -1,0 +1,10 @@
+@if ($errors->any())
+    <div class="alert alert-danger"><ul class="mb-0">@foreach ($errors->all() as $error)<li>{{ __($error) }}</li>@endforeach</ul></div>
+@endif
+<div class="row g-3 mb-3">
+    <div class="col-md-6"><label for="book_id" class="form-label">{{ __('Book *') }}</label><select id="book_id" name="book_id" class="form-select" required><option value="">{{ __('Select book') }}</option>@foreach ($books as $bookOption)<option value="{{ $bookOption->id }}" @selected(old('book_id', $bookCopy->book_id ?? '') == $bookOption->id)>{{ $bookOption->title }}</option>@endforeach</select></div>
+    <div class="col-md-6"><label for="accession_number" class="form-label">{{ __('Accession Number *') }}</label><input id="accession_number" name="accession_number" type="text" class="form-control" value="{{ old('accession_number', $bookCopy->accession_number ?? '') }}" required></div>
+    <div class="col-md-4"><label for="status" class="form-label">{{ __('Status') }} *</label><select id="status" name="status" class="form-select" required>@foreach (['AVAILABLE', 'ISSUED', 'LOST', 'DAMAGED', 'REPAIR'] as $status)<option value="{{ $status }}" @selected(old('status', $bookCopy->status ?? 'AVAILABLE') === $status)>{{ __($status) }}</option>@endforeach</select></div>
+    <div class="col-md-4"><label for="condition" class="form-label">{{ __('Condition') }} *</label><select id="condition" name="condition" class="form-select" required>@foreach (['GOOD', 'FAIR', 'DAMAGED'] as $condition)<option value="{{ $condition }}" @selected(old('condition', $bookCopy->condition ?? 'GOOD') === $condition)>{{ __($condition) }}</option>@endforeach</select></div>
+    <div class="col-md-4"><label for="acquisition_date" class="form-label">{{ __('Acquisition') }} {{ __('Date') }} *</label><input id="acquisition_date" name="acquisition_date" type="date" class="form-control" value="{{ old('acquisition_date', $bookCopy->acquisition_date ?? '') }}" required></div>
+</div>

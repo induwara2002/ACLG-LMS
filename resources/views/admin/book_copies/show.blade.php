@@ -1,0 +1,6 @@
+@extends('layouts.admin')
+@section('title', __('Book Copy Details'))
+@section('content')
+<div class="d-flex justify-content-between align-items-center mb-4"><div><h1 class="page-title">{{ __('Book Copy Details') }}</h1><p class="page-subtitle">{{ $bookCopy->accession_number }}</p></div><div class="btn-group">@unless (auth()->user()->isMainAdmin())<a href="{{ route('admin.book-copies.edit', $bookCopy) }}" class="btn btn-primary">{{ __('Edit') }}</a>@endunless<a href="{{ route('admin.book-copies.index') }}" class="btn btn-outline-secondary">{{ __('Back') }}</a></div></div>
+<div class="card"><div class="card-body"><div class="row g-3"><div class="col-md-6"><strong>{{ __('Book') }}:</strong> {{ $bookCopy->book->title ?? '—' }}</div><div class="col-md-6"><strong>{{ __('Accession Number') }}:</strong> {{ $bookCopy->accession_number }}</div><div class="col-md-4"><strong>{{ __('Status') }}:</strong> <span class="status-badge">{{ __($bookCopy->status) }}</span></div><div class="col-md-4"><strong>{{ __('Condition') }}:</strong> {{ __($bookCopy->condition) }}</div><div class="col-md-4"><strong>{{ __('Acquisition') }} {{ __('Date') }}:</strong> {{ $bookCopy->acquisition_date ?? '—' }}</div></div></div></div>
+@endsection

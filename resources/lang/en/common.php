@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'create' => 'Create',
+    'save' => 'Save',
+    'update' => 'Update',
+    'delete' => 'Delete',
+    'edit' => 'Edit',
+    'view' => 'View',
+    'search' => 'Search',
+    'filter' => 'Filter',
+    'cancel' => 'Cancel',
+    'back' => 'Back',
+    'close' => 'Close',
+    'print' => 'Print',
+    'download' => 'Download',
+    'submit' => 'Submit',
+    'required' => 'Required',
+    'menu' => 'Menu',
+    'breadcrumb' => 'Breadcrumb',
+    'open_navigation' => 'Open navigation',
+    'close_navigation' => 'Close navigation',
+    'id' => 'ID',
+    'ddc' => 'DDC',
+];

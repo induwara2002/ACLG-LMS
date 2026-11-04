@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'title' => 'Member registration',
+    'kicker' => 'Join your public library',
+    'intro' => 'Submit your details to apply for membership at your selected Pradeshiya Sabha library.',
+    'full_name' => 'Full name',
+    'email' => 'Email address',
+    'nic' => 'National identity number (NIC)',
+    'phone' => 'Contact number',
+    'address' => 'Residential address',
+    'sabha' => 'Pradeshiya Sabha',
+    'choose_sabha' => 'Select your Pradeshiya Sabha',
+    'membership_type' => 'Membership type',
+    'choose_membership_type' => 'Select a membership type',
+    'password' => 'Password',
+    'confirm_password' => 'Confirm password',
+    'pending_notice' => 'Your application will be reviewed by the Sabha you select. Borrowing and reservation privileges become available only after approval.',
+    'already_registered' => 'Already have an account? Sign in',
+    'submit' => 'Submit application',
+    'submitted_title' => 'Application submitted',
+    'submitted_message' => 'Your member account has been created and your application is awaiting approval from your selected Pradeshiya Sabha.',
+    'next_steps' => 'You can sign in now to view your application status. Borrowing and reservations will remain unavailable until your membership is approved.',
+    'go_to_login' => 'Go to sign in',
+];
