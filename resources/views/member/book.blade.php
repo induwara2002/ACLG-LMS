@@ -4,6 +4,12 @@
 
 @section('content')
 <div class="container py-5">
+    @if (session('success'))
+        <div class="alert alert-success" role="status">{{ session('success') }}</div>
+    @endif
+    @error('reservation')
+        <div class="alert alert-danger" role="alert">{{ $message }}</div>
+    @enderror
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="page-title">{{ $book->title }}</h1>
@@ -24,6 +30,14 @@
                 <dt class="col-sm-3">{{ __('Availability') }}</dt>
                 <dd class="col-sm-9">{{ $book->inventories->sum('available_quantity') > 0 ? __('Available at your library') : __('Currently unavailable') }}</dd>
             </dl>
+            @if ($activeReservation)
+                <p class="mt-3">{{ __('You have an active reservation for this book.') }}</p>
+            @elseif ($canReserve)
+                <form method="POST" action="{{ route('member.reservations.store', $book) }}">
+                    @csrf
+                    <button class="btn btn-primary" type="submit">{{ __('Reserve this book') }}</button>
+                </form>
+            @endif
         </div>
     </div>
 </div>

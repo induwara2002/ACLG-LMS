@@ -9,6 +9,14 @@ class DdcRangeSynchronizer
 {
     public function syncAll(): void
     {
+        Category::withoutGlobalScopes()->firstOrCreate(
+            ['code' => '800', 'pradeshiya_sabha_id' => null],
+            [
+                'name' => 'Literature',
+                'description' => 'DDC range 800-900',
+            ]
+        );
+
         PradeshiyaSabha::query()
             ->orderBy('id')
             ->get()

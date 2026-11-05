@@ -12,6 +12,7 @@ use App\Models\BookCopy;
 use App\Rules\ValidIsbn;
 use App\Services\GoogleBooksLookupException;
 use App\Services\GoogleBooksMetadataService;
+use App\Services\DdcRangeSynchronizer;
 use App\Support\Isbn;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -55,12 +56,25 @@ class AdminBookController extends Controller
         return view('admin.books.index', compact('books', 'search'));
     }
 
-    public function create()
+    public function create(DdcRangeSynchronizer $ddcRangeSynchronizer)
     {
+        $sabha = request()->user()?->pradeshiyaSabha;
+        abort_unless($sabha !== null, 403);
+
+        $ddcRangeSynchronizer->syncFor($sabha);
+        $categoryOptions = Category::orderBy('code')->get()->map(function (Category $category): array {
+            $range = Category::BOOK_REGISTRATION_CATEGORIES[$category->code] ?? null;
+
+            return [
+                'id' => $category->id,
+                'label' => $range === null
+                    ? $category->code.' - '.$category->name
+                    : $category->code.' - '.$range['label'].' · '.$range['name'],
+            ];
+        });
+
         return view('admin.books.create', [
-            'authors' => Author::orderBy('name')->get(),
-            'publishers' => Publisher::orderBy('name')->get(),
-            'categories' => Category::orderBy('code')->get(),
+            'categoryOptions' => $categoryOptions,
         ]);
     }
 
@@ -126,8 +140,10 @@ class AdminBookController extends Controller
     {
         $data = $request->validated();
         $copyCount = (int) $data['total_copies'];
+        $authorName = $data['author_name'] ?? null;
+        $publisherName = $data['publisher_name'] ?? null;
         $coverImage = $data['cover_image'] ?? null;
-        unset($data['total_copies'], $data['cover_image']);
+        unset($data['total_copies'], $data['cover_image'], $data['author_name'], $data['publisher_name']);
         $user = $request->user();
         $tenantId = (int) $user->pradeshiya_sabha_id;
         $coverImagePath = null;
@@ -144,7 +160,21 @@ class AdminBookController extends Controller
                 $data['cover_image'] = $coverImagePath;
             }
 
-            [$book, $persistedCopyCount] = DB::transaction(function () use ($data, $copyCount, $tenantId) {
+            [$book, $persistedCopyCount] = DB::transaction(function () use ($data, $copyCount, $tenantId, $authorName, $publisherName) {
+                if ($authorName !== null) {
+                    $data['author_id'] = Author::query()->firstOrCreate(
+                        ['name' => $authorName],
+                        ['pradeshiya_sabha_id' => $tenantId]
+                    )->getKey();
+                }
+
+                if ($publisherName !== null) {
+                    $data['publisher_id'] = Publisher::query()->firstOrCreate(
+                        ['name' => $publisherName],
+                        ['pradeshiya_sabha_id' => $tenantId]
+                    )->getKey();
+                }
+
                 $book = Book::create($data);
 
                 for ($copyNumber = 1; $copyNumber <= $copyCount; $copyNumber++) {

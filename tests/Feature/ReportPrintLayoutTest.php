@@ -71,16 +71,17 @@ class ReportPrintLayoutTest extends TestCase
         $sabha->update(['logo_path' => 'pradeshiya-sabhas/'.$sabha->id.'/logo.png']);
         $sabhaAdmin = $this->createSabhaAdmin($sabha);
 
-        $this->actingAs($sabhaAdmin)
+        $response = $this->actingAs($sabhaAdmin)
             ->get(route('admin.reports.show', 'books'))
             ->assertOk()
             ->assertSee('වාර්තා සභාව')
             ->assertSee('Report Tenant A')
             ->assertSee('Tenant A Library')
-            ->assertSee(route('sabhas.logo', $sabha), false)
-            ->assertDontSee(asset('images/sri-lanka-state-emblem.png'), false)
             ->assertDontSee('Report Tenant B')
             ->assertDontSee(__('reports.official_logo_not_configured'));
+        preg_match('/<header class="report-print-header">(.*?)<\/header>/s', $response->getContent(), $header);
+        $this->assertStringContainsString(route('sabhas.logo', $sabha), $header[1] ?? '');
+        $this->assertStringNotContainsString(asset('images/sri-lanka-state-emblem.png'), $header[1] ?? '');
 
         $mainAdmin = User::factory()->create([
             'role' => User::ROLE_MAIN_ADMIN,

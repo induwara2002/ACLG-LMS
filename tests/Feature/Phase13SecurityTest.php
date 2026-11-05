@@ -8,6 +8,7 @@ use App\Models\Fine;
 use App\Models\Member;
 use App\Models\MembershipPayment;
 use App\Models\MembershipType;
+use App\Models\PradeshiyaSabha;
 use App\Models\User;
 use App\Services\AuditLogService;
 use App\Services\PaymentService;
@@ -121,11 +122,22 @@ class Phase13SecurityTest extends TestCase
             ->assertDontSee('Other member fine marker');
     }
 
-    public function test_public_registration_is_unavailable_for_privileged_role_payloads(): void
+    public function test_public_registration_rejects_privileged_role_payloads(): void
     {
+        $sabha = PradeshiyaSabha::create([
+            'code' => 'REGSEC',
+            'name' => 'Registration Security Sabha',
+            'is_active' => true,
+        ]);
+        $membershipType = MembershipType::create([
+            'name' => 'CHILDREN',
+            'max_books' => 2,
+            'description' => 'Child member',
+        ]);
+
         foreach ([User::ROLE_ADMIN, User::ROLE_LIBRARIAN] as $role) {
             $email = strtolower($role).'@example.test';
-            $this->get('/register')->assertNotFound();
+            $this->get('/register')->assertOk();
             $this->post('/register', [
                 'full_name' => 'Registration Test',
                 'email' => $email,
@@ -134,11 +146,13 @@ class Phase13SecurityTest extends TestCase
                 'nic' => strtolower($role).'-nic',
                 'phone' => '0771234567',
                 'address' => 'Test address',
-                'membership_type' => 'INDIVIDUAL',
+                'membership_type_id' => $membershipType->id,
+                'pradeshiya_sabha_id' => $sabha->id,
                 'role' => $role,
-            ])->assertNotFound();
+            ])->assertSessionHasErrors('role');
 
             $this->assertDatabaseMissing('users', ['email' => $email]);
+            $this->assertDatabaseMissing('members', ['email' => $email]);
         }
     }
 

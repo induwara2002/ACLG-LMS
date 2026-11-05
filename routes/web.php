@@ -183,6 +183,8 @@ Route::middleware(['auth', 'role:MEMBER', 'sabha.context'])->prefix('member')->n
     Route::get('/search', [SearchController::class, 'globalSearch'])->name('search');
     Route::get('/books/search', [SearchController::class, 'books'])->name('books.search');
     Route::get('/books/{book}', [MemberPortalController::class, 'book'])->name('books.show');
+    Route::post('/books/{book}/reservations', [MemberPortalController::class, 'reserve'])->name('reservations.store');
+    Route::post('/reservations/{reservation}/cancel', [MemberPortalController::class, 'cancelReservation'])->name('reservations.cancel');
     Route::get('/alerts', [MemberPortalController::class, 'alerts'])->name('alerts');
     Route::get('/password', [AccountPasswordController::class, 'edit'])->name('password.edit');
     Route::put('/password', [AccountPasswordController::class, 'update'])->name('password.update');

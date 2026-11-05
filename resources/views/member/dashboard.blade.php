@@ -45,6 +45,7 @@
             <span>{{ __('dashboard.currently_borrowed') }}</span>
             <strong>{{ $activeBorrowingCount }}</strong>
             <small>{{ __('dashboard.books_on_loan') }}</small>
+            <small>{{ __('Remaining allowance') }}: {{ $remainingAllowance }}</small>
         </a>
         <a class="member-summary-card" href="{{ route('member.borrowings') }}">
             <span class="member-summary-icon" aria-hidden="true">◷</span>
@@ -148,6 +149,12 @@
                 <article class="member-activity-row">
                     <div><strong>{{ $reservation->book?->title ?? __('dashboard.book_unavailable') }}</strong><small>{{ __('dashboard.reserved_on') }} {{ $reservation->reserved_at?->format('Y-m-d') ?? '—' }}</small></div>
                     <span class="member-activity-status">{{ __($reservation->status) }}</span>
+                    @if ($reservation->status === 'PENDING')
+                        <form method="POST" action="{{ route('member.reservations.cancel', $reservation) }}">
+                            @csrf
+                            <button class="btn btn-outline-secondary btn-sm" type="submit">{{ __('Cancel reservation') }}</button>
+                        </form>
+                    @endif
                 </article>
             @empty
                 <p class="member-empty-state">{{ __('dashboard.no_reservations') }}</p>

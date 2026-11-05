@@ -30,9 +30,19 @@
 
     <div class="col-md-4">
         <label for="isbn" class="form-label">{{ __('ISBN') }}</label>
-        <input id="isbn" name="isbn" type="text" maxlength="100"
-            class="form-control @error('isbn') is-invalid @enderror"
-            value="{{ old('isbn') }}" @if ($errors->has('isbn')) aria-invalid="true" aria-describedby="isbn-error" @endif>
+        <div class="input-group">
+            <input id="isbn" name="isbn" type="text" maxlength="20" inputmode="text" autocomplete="off"
+                class="form-control @error('isbn') is-invalid @enderror"
+                value="{{ old('isbn') }}" aria-describedby="isbn-help isbn-lookup-status"
+                @if ($errors->has('isbn')) aria-invalid="true" @endif>
+            <button class="btn btn-outline-primary" id="isbn-lookup" type="button"
+                data-url="{{ route('admin.books.isbn-lookup') }}">
+                <span id="isbn-lookup-spinner" class="spinner-border spinner-border-sm me-1 d-none" aria-hidden="true"></span>
+                {{ __('Look up') }}
+            </button>
+        </div>
+        <div class="form-text" id="isbn-help">{{ __('Enter a valid ISBN-10 or ISBN-13. Details are looked up when you leave this field; you can also enter details manually.') }}</div>
+        <div class="small mt-1" id="isbn-lookup-status" role="status" aria-live="polite"></div>
         @error('isbn')<div class="invalid-feedback" id="isbn-error">{{ $message }}</div>@enderror
     </div>
 
@@ -40,19 +50,25 @@
 
     <div class="col-md-8">
         <label for="author_name" class="form-label">{{ __('Author *') }}</label>
-        <input id="author_name" name="author_name" type="text" maxlength="255" required
-            class="form-control @error('author_name') is-invalid @enderror"
-            placeholder="{{ __('Enter author name') }}" value="{{ old('author_name') }}"
-            @if ($errors->has('author_name')) aria-invalid="true" aria-describedby="author_name-error" @endif>
+        <div class="input-group">
+            <input id="author_name" name="author_name" type="text" maxlength="255" required
+                class="form-control @error('author_name') is-invalid @enderror"
+                placeholder="{{ __('Enter author name') }}" value="{{ old('author_name') }}"
+                @if ($errors->has('author_name')) aria-invalid="true" aria-describedby="author_name-error" @endif>
+            <button class="btn btn-outline-secondary text-nowrap" type="button" data-open-catalog-dialog="author-dialog">{{ __('+ Add Author') }}</button>
+        </div>
         @error('author_name')<div class="invalid-feedback" id="author_name-error">{{ $message }}</div>@enderror
     </div>
 
     <div class="col-md-8">
         <label for="publisher_name" class="form-label">{{ __('Publisher *') }}</label>
-        <input id="publisher_name" name="publisher_name" type="text" maxlength="255" required
-            class="form-control @error('publisher_name') is-invalid @enderror"
-            placeholder="{{ __('Enter publisher name') }}" value="{{ old('publisher_name') }}"
-            @if ($errors->has('publisher_name')) aria-invalid="true" aria-describedby="publisher_name-error" @endif>
+        <div class="input-group">
+            <input id="publisher_name" name="publisher_name" type="text" maxlength="255" required
+                class="form-control @error('publisher_name') is-invalid @enderror"
+                placeholder="{{ __('Enter publisher name') }}" value="{{ old('publisher_name') }}"
+                @if ($errors->has('publisher_name')) aria-invalid="true" aria-describedby="publisher_name-error" @endif>
+            <button class="btn btn-outline-secondary text-nowrap" type="button" data-open-catalog-dialog="publisher-dialog">{{ __('+ Add Publisher') }}</button>
+        </div>
         @error('publisher_name')<div class="invalid-feedback" id="publisher_name-error">{{ $message }}</div>@enderror
     </div>
 
@@ -61,7 +77,7 @@
         <select id="category_id" name="category_id" required
             class="form-select @error('category_id') is-invalid @enderror"
             @if ($errors->has('category_id')) aria-invalid="true" aria-describedby="category_id-error" @endif>
-            <option value="">{{ __('Select Category') }}</option>
+            <option value="">{{ __('Select category') }}</option>
             @foreach ($categoryOptions as $categoryOption)
                 <option value="{{ $categoryOption['id'] }}" @selected((string) old('category_id') === (string) $categoryOption['id'])>{{ $categoryOption['label'] }}</option>
             @endforeach
@@ -117,3 +133,6 @@
         @error('total_copies')<div class="invalid-feedback" id="total_copies-error">{{ $message }}</div>@enderror
     </div>
 </div>
+
+<script src="{{ asset('js/isbn-lookup.js') }}"></script>
+@include('admin.books.quick-add-dialogs')

@@ -1,57 +1,84 @@
 # Library Management System
 
-A local library management system for a single library administrator or librarian.
+A Laravel 10 application for managing a network of Pradeshiya Sabha libraries. It uses Blade views, MySQL, and Vite for frontend asset builds.
 
-## Description
+## Requirements
 
-This project is designed for a local library environment where only the administrator/librarian can access the system. Members are managed from the admin panel and do not have login accounts or self-registration.
-
-## Technology Stack
-
-- Laravel
-- PHP
+- PHP 8.1 or later supported by the installed Laravel 10 dependencies, with the required Laravel PHP extensions and PDO MySQL
+- Composer
 - MySQL
-- Blade
-- Bootstrap 5
+- Node.js and npm
 
-## Authentication Model
+## Application roles
 
-- Only one authenticated user role is used: administrator/librarian
-- Members are not system users
-- Members are managed manually from the admin panel
-- No public member login or member registration is available
+- **Main/Super Admin:** administers Sabha records and system-wide configuration, with cross-Sabha reporting and read-only catalog access.
+- **Pradeshiya Sabha Admin:** manages members, catalog, circulation, payments, and settings for their assigned Sabha.
+- **Librarian:** handles day-to-day member services, catalog lookups, issuing, returns, renewals, fines, and reports within their Sabha.
+- **Member:** signs in to the member portal to browse their Sabha's catalog, review their membership and circulation records, receive alerts, renew eligible loans, and reserve unavailable books.
 
-## Current Phase
+Public member applications are created in a pending state and require Sabha staff approval before circulation services are available. Staff access to records and physical inventory is scoped to the user's Sabha; Main Admin access to operational records is controlled separately from their read-only catalog access.
 
-This project is currently in Phase 1 architecture setup with admin-only authentication and placeholder management screens.
+## Current features
 
-## Project Setup
+- Main Admin and Sabha administration, Sabha settings, assignments, and audit logs
+- Separate staff and member dashboards, localized interfaces, and role-based authentication
+- Book catalog, authors, publishers, categories, physical copies, and Sabha-scoped inventory
+- Member applications, approvals, membership types, renewals, and account management
+- Book issue, return, loan renewal, unavailable-book reservations, fines, payments, and lost/damaged copy records
+- Reports, Google Books ISBN lookup, email alerts, and scheduled due-date and membership-expiry reminders
 
-1. Copy `.env.example` to `.env`
-2. Configure MySQL settings in `.env`
-3. Run `composer install`
-4. Run `php artisan key:generate`
-5. Run `php artisan serve`
+The application timezone is `Asia/Colombo`. Email and reminder configuration is documented in [docs/email-alerts.md](docs/email-alerts.md). Backup and member-data protection guidance is in [docs/backup-and-data-protection.md](docs/backup-and-data-protection.md).
 
-## Admin Access
+## Local setup
 
-- Public home page: `/`
-- Admin login page: `/login`
-- Admin dashboard after login: `/admin/dashboard`
+1. Copy `.env.example` to `.env` and configure a **dedicated local development database** and application URL.
+2. Install PHP dependencies:
 
-## Notes
+   ```powershell
+   composer install
+   ```
 
-- Members are not authenticated users.
-- Member self-registration is not implemented.
-- The admin manages member records directly through the admin panel.
-- Business logic and database implementation will be added in later phases.
+3. Generate an application key for a new local installation:
 
-## Dashboard and circulation dates
+   ```powershell
+   php artisan key:generate
+   ```
 
-The application timezone is `Asia/Colombo`. Dashboard clocks are initialized from the server timestamp and update every second in the browser. Issue and return timestamps are recorded by the server; the existing configured issue period determines due dates, and membership expiry falls back to one year from membership start or registration when an older record has no stored expiry date.
+4. Install the exact frontend dependency versions from the npm lockfile and build production assets:
 
-Before deploying circulation timestamp changes, apply pending migrations with `php artisan migrate`. Do not use `migrate:fresh` on a database containing library records.
+   ```powershell
+   npm ci
+   npm run build
+   ```
 
-## Email Alerts
+5. Apply migrations only to a new or explicitly approved local database:
 
-The system sends welcome and book-issue messages after successful database commits. Daily commands send once-per-period due-date and membership-expiry reminders. Configure SMTP and reminder windows in `.env` as described in [docs/email-alerts.md](docs/email-alerts.md). The scheduler is registered in `app/Console/Kernel.php`; migrations must be applied before running the reminder commands.
+   ```powershell
+   php artisan migrate
+   ```
+
+   Do not point setup or test commands at a database containing library records unless the migration plan has been reviewed and the data backed up. Never use `migrate:fresh` on a database with records.
+
+6. Make sure `storage` and `bootstrap/cache` are writable by the PHP process, then start the local server:
+
+   ```powershell
+   php artisan serve
+   ```
+
+The public home page is `/`, staff sign in at `/login`, and authenticated users are sent to the dashboard for their role. Configure real mail transport and the Laravel scheduler before enabling automated email reminders.
+
+## Tests
+
+Run the PHP test suite with:
+
+```powershell
+php artisan test
+```
+
+`phpunit.xml` targets the MySQL database `library_management_test`, and feature tests use Laravel's `RefreshDatabase` trait. Create and configure this as a **dedicated disposable test database**: the test runner rebuilds its schema. Never run the suite against a live or data-bearing database. Frontend assets can be checked separately with:
+
+```powershell
+npm run build
+```
+
+The JavaScript ISBN lookup tests are in `tests/js`; the project currently has no npm test script.

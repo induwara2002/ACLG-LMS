@@ -14,7 +14,7 @@
     <div class="card-body">
         <form method="POST" action="{{ route('admin.books.store') }}" enctype="multipart/form-data">
             @csrf
-            @include('admin.books.form')
+            @include('admin.books.registration-form')
             <div class="d-flex flex-wrap gap-2">
                 <button type="submit" class="btn btn-primary">{{ __('Save Book') }}</button>
                 <a href="{{ route('admin.books.index') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>

@@ -5,17 +5,52 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use App\Models\Borrowing;
 use App\Services\BorrowingService;
+use App\Services\ReservationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 
 class MemberPortalController extends Controller
 {
-    public function book(Book $book)
+    public function book(Request $request, Book $book)
     {
         $book->load(['author', 'publisher', 'category', 'inventories']);
+        $member = $request->user()->member()->firstOrFail();
+        $activeReservation = $member->reservations()
+            ->where('book_id', $book->id)
+            ->where('status', 'PENDING')
+            ->first();
+        $canReserve = $member->user?->is_active
+            && $member->portalStatus() === 'ACTIVE'
+            && $book->inventories->sum('available_quantity') === 0;
 
-        return view('member.book', compact('book'));
+        return view('member.book', compact('book', 'activeReservation', 'canReserve'));
+    }
+
+    public function reserve(Request $request, Book $book, ReservationService $service)
+    {
+        $member = $request->user()->member()->firstOrFail();
+
+        try {
+            $service->reserve($member, $book);
+        } catch (InvalidArgumentException $exception) {
+            return back()->withErrors(['reservation' => $exception->getMessage()]);
+        }
+
+        return back()->with('success', __('Book reserved successfully.'));
+    }
+
+    public function cancelReservation(Request $request, int $reservation, ReservationService $service)
+    {
+        $member = $request->user()->member()->firstOrFail();
+
+        try {
+            $service->cancel($member, $reservation);
+        } catch (InvalidArgumentException $exception) {
+            return back()->withErrors(['reservation' => $exception->getMessage()]);
+        }
+
+        return back()->with('success', __('Reservation cancelled successfully.'));
     }
 
     public function alerts(Request $request)

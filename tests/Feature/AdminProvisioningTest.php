@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Models\MembershipType;
+use App\Models\PradeshiyaSabha;
 use Database\Seeders\AdminUserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -105,12 +107,32 @@ class AdminProvisioningTest extends TestCase
 
             $this->post('/logout')->assertRedirect('/login');
 
-        $this->get('/register')->assertNotFound();
+        $sabha = PradeshiyaSabha::create([
+            'code' => 'PROVISION',
+            'name' => 'Provisioning Test Sabha',
+            'is_active' => true,
+        ]);
+        $membershipType = MembershipType::create([
+            'name' => 'CHILDREN',
+            'max_books' => 2,
+            'description' => 'Child member',
+        ]);
+
+        $this->get('/register')->assertOk();
         $this->post('/register', [
+            'full_name' => 'Privileged Registration',
             'email' => 'privileged@example.com',
+            'password' => 'member-test-password',
+            'password_confirmation' => 'member-test-password',
+            'nic' => 'PROVISION-NIC',
+            'phone' => '0771234567',
+            'address' => 'Test address',
+            'membership_type_id' => $membershipType->id,
+            'pradeshiya_sabha_id' => $sabha->id,
             'role' => User::ROLE_ADMIN,
-        ])->assertNotFound();
+        ])->assertSessionHasErrors('role');
 
         $this->assertDatabaseMissing('users', ['email' => 'privileged@example.com']);
+        $this->assertDatabaseMissing('members', ['email' => 'privileged@example.com']);
     }
 }

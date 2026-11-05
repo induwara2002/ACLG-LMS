@@ -13,6 +13,7 @@ use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -58,7 +59,9 @@ class Phase3CatalogTenantTest extends TestCase
         $payload = $this->registrationPayload('ACQ-FORM-1', $author, $publisher, $category) + ['total_copies' => 2];
         $payload['publication_year'] = 1890;
         $payload['description'] = 'Must not be stored from the removed form field.';
+        Auth::logout();
         $otherSabha = PradeshiyaSabha::create(['code' => 'FORM-B', 'name' => 'Forged Form Sabha']);
+        $this->actingAs($admin);
         $payload['pradeshiya_sabha_id'] = $otherSabha->id;
 
         Log::spy();
@@ -73,8 +76,8 @@ class Phase3CatalogTenantTest extends TestCase
         $this->assertSame($author->id, $book->author_id);
         $this->assertSame($publisher->id, $book->publisher_id);
         $this->assertSame(2, $book->copies()->count());
-        $this->assertDatabaseHas('book_copies', ['book_id' => $book->id, 'accession_number' => 'FORM-ACQ-FORM-1-001']);
-        $this->assertDatabaseHas('book_copies', ['book_id' => $book->id, 'accession_number' => 'FORM-ACQ-FORM-1-002']);
+        $this->assertDatabaseHas('book_copies', ['book_id' => $book->id, 'accession_number' => 'ACQ-FORM-1-001']);
+        $this->assertDatabaseHas('book_copies', ['book_id' => $book->id, 'accession_number' => 'ACQ-FORM-1-002']);
         $this->get(route('admin.books.index'))
             ->assertSee('Book added successfully.')
             ->assertSee('alert-success', false)
@@ -113,8 +116,8 @@ class Phase3CatalogTenantTest extends TestCase
 
         $this->assertSame(8, preg_match_all('/<option\b/', $categoryHtml));
         $this->assertStringContainsString('<option value="">Select category</option>', $categoryHtml);
-        $this->assertStringContainsString('name="author_id"', $html);
-        $this->assertStringContainsString('name="publisher_id"', $html);
+        $this->assertStringContainsString('name="author_name"', $html);
+        $this->assertStringContainsString('name="publisher_name"', $html);
         $this->assertStringContainsString('value="'.$unlistedCategory->id.'"', $categoryHtml);
 
         $categoryOptions = [];
@@ -482,12 +485,12 @@ class Phase3CatalogTenantTest extends TestCase
             ->get(route('admin.books.index'))
             ->assertOk()
             ->assertSee('Own Book')
-            ->assertSee('Other Book');
+            ->assertDontSee('Other Book');
         $this->get(route('admin.books.show', $bookA))->assertOk();
-        $this->get(route('admin.books.show', $bookB))->assertOk();
+        $this->get(route('admin.books.show', $bookB))->assertNotFound();
         $this->get(route('admin.books.edit', $bookB))->assertNotFound();
         $this->get(route('admin.books.edit', $bookA))->assertOk()->assertDontSee('Description');
-        $this->put(route('admin.books.update', $bookB), [])->assertForbidden();
+        $this->put(route('admin.books.update', $bookB), [])->assertNotFound();
         $this->delete(route('admin.books.destroy', $bookB))->assertNotFound();
 
         $this->put(route('admin.books.update', $bookA), array_merge($this->bookPayload('ACQ-UPD-A', $authorA, $publisherA, $categoryA), [
@@ -529,6 +532,26 @@ class Phase3CatalogTenantTest extends TestCase
 
         $this->assertDatabaseMissing('books', ['book_id' => 'ACQ-REF-CATEGORY']);
         $this->assertSame('Own Book', $bookA->fresh()->title);
+    }
+
+    public function test_book_creation_rejects_mixed_existing_and_typed_author_references(): void
+    {
+        [$sabha, $admin] = $this->tenant('MIXED');
+        $author = $this->author($sabha, 'Mixed Reference Author');
+        $publisher = $this->publisher($sabha, 'Mixed Reference Publisher');
+        $category = $this->category($sabha, '654', 'Mixed Reference Category');
+        $payload = $this->bookPayload('ACQ-MIXED', $author, $publisher, $category) + ['total_copies' => 1];
+        $payload['author_name'] = 'A different author';
+        $payload['publisher_name'] = 'A different publisher';
+
+        $this->actingAs($admin)
+            ->from(route('admin.books.create'))
+            ->post(route('admin.books.store'), $payload)
+            ->assertSessionHasErrors(['author_name', 'publisher_name']);
+
+        $this->assertDatabaseMissing('books', ['book_id' => 'ACQ-MIXED']);
+        $this->assertDatabaseMissing('authors', ['name' => 'A different author']);
+        $this->assertDatabaseMissing('publishers', ['name' => 'A different publisher']);
     }
 
     public function test_author_and_publisher_quick_add_use_one_name_field_and_remain_tenant_local(): void

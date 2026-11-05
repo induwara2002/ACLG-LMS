@@ -124,6 +124,88 @@ class Phase5MemberExperienceTest extends TestCase
             ->assertDontSee($otherBook->title);
     }
 
+    public function test_active_member_can_reserve_only_unavailable_books_and_cancel_their_pending_reservation(): void
+    {
+        $sabha = $this->sabha('P5R');
+        $member = $this->member($sabha, 'Reservation Owner');
+        $otherMember = $this->member($sabha, 'Reservation Other Member');
+        $book = $this->book($sabha, 'Reservation Unavailable Book');
+        BookInventory::create([
+            'pradeshiya_sabha_id' => $sabha->id,
+            'book_id' => $book->id,
+            'total_quantity' => 1,
+            'available_quantity' => 1,
+        ]);
+
+        $this->actingAs($member->user)
+            ->get(route('member.books.show', $book))
+            ->assertOk()
+            ->assertDontSee('Reserve this book');
+        $this->post(route('member.reservations.store', $book))
+            ->assertRedirect()
+            ->assertSessionHasErrors('reservation');
+        $this->assertDatabaseMissing('book_reservations', ['member_id' => $member->id, 'book_id' => $book->id]);
+
+        BookInventory::query()->where('book_id', $book->id)->update(['available_quantity' => 0]);
+
+        $this->get(route('member.books.show', $book))
+            ->assertOk()
+            ->assertSee('Reserve this book');
+        $this->post(route('member.reservations.store', $book))
+            ->assertRedirect()
+            ->assertSessionHas('success', 'Book reserved successfully.');
+
+        $reservation = BookReservation::query()
+            ->where('member_id', $member->id)
+            ->where('book_id', $book->id)
+            ->firstOrFail();
+        $this->assertSame((int) $sabha->id, (int) $reservation->pradeshiya_sabha_id);
+        $this->assertSame('PENDING', $reservation->status);
+
+        $this->post(route('member.reservations.store', $book))
+            ->assertRedirect()
+            ->assertSessionHasErrors('reservation');
+        $this->post(route('member.reservations.cancel', $reservation))
+            ->assertRedirect()
+            ->assertSessionHas('success', 'Reservation cancelled successfully.');
+        $this->assertDatabaseHas('book_reservations', ['id' => $reservation->id, 'status' => 'CANCELLED']);
+
+        $otherReservation = BookReservation::create([
+            'pradeshiya_sabha_id' => $sabha->id,
+            'member_id' => $otherMember->id,
+            'book_id' => $book->id,
+            'status' => 'PENDING',
+            'reserved_at' => now(),
+        ]);
+        $this->post(route('member.reservations.cancel', $otherReservation))->assertNotFound();
+        $this->assertDatabaseHas('book_reservations', ['id' => $otherReservation->id, 'status' => 'PENDING']);
+    }
+
+    public function test_inactive_member_cannot_reserve_and_members_cannot_reserve_from_another_sabha(): void
+    {
+        $sabhaA = $this->sabha('P5S');
+        $sabhaB = $this->sabha('P5T');
+        $member = $this->member($sabhaA, 'Inactive Reservation Member');
+        $bookA = $this->book($sabhaA, 'Own Sabha Unavailable Book');
+        $bookB = $this->book($sabhaB, 'Other Sabha Unavailable Book');
+        BookInventory::create([
+            'pradeshiya_sabha_id' => $sabhaA->id,
+            'book_id' => $bookA->id,
+            'total_quantity' => 1,
+            'available_quantity' => 0,
+        ]);
+
+        $this->actingAs($member->user)
+            ->post(route('member.reservations.store', $bookB))
+            ->assertNotFound();
+
+        $member->update(['status' => 'SUSPENDED']);
+        $this->post(route('member.reservations.store', $bookA))
+            ->assertRedirect()
+            ->assertSessionHasErrors('reservation');
+        $this->assertDatabaseMissing('book_reservations', ['member_id' => $member->id]);
+    }
+
     public function test_pending_membership_status_is_recognized_for_member_portal_restrictions(): void
     {
         $member = new Member(['status' => 'PENDING']);

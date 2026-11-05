@@ -35,8 +35,10 @@ class StoreBookRequest extends FormRequest
             'book_id' => ['required', 'string', 'max:100', 'unique:books,book_id'],
             'title' => ['required', 'string', 'max:255'],
             'isbn' => ['nullable', 'string', 'max:13', new ValidIsbn, Rule::unique('books', 'isbn')],
-            'author_id' => ['required', Rule::exists('authors', 'id')->where('pradeshiya_sabha_id', $sabhaId)],
-            'publisher_id' => ['required', Rule::exists('publishers', 'id')->where('pradeshiya_sabha_id', $sabhaId)],
+            'author_id' => ['nullable', 'required_without:author_name', 'integer', Rule::exists('authors', 'id')->where('pradeshiya_sabha_id', $sabhaId)],
+            'author_name' => ['nullable', 'required_without:author_id', 'string', 'max:255'],
+            'publisher_id' => ['nullable', 'required_without:publisher_name', 'integer', Rule::exists('publishers', 'id')->where('pradeshiya_sabha_id', $sabhaId)],
+            'publisher_name' => ['nullable', 'required_without:publisher_id', 'string', 'max:255'],
             'category_id' => ['required', Rule::exists('categories', 'id')->where(fn ($query) => $query
                 ->whereNull('pradeshiya_sabha_id')
                 ->orWhere('pradeshiya_sabha_id', $sabhaId))],
@@ -56,6 +58,17 @@ class StoreBookRequest extends FormRequest
         return [
             'isbn.unique' => 'A book with this ISBN already exists. Use its existing catalog record instead of creating a duplicate.',
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            foreach (['author' => 'author_name', 'publisher' => 'publisher_name'] as $identifier => $name) {
+                if ($this->filled($identifier.'_id') && $this->filled($name)) {
+                    $validator->errors()->add($name, 'Provide either an existing '.$identifier.' or a new '.$identifier.' name, not both.');
+                }
+            }
+        });
     }
 
     protected function failedValidation(Validator $validator): void

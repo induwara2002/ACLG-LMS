@@ -10,8 +10,8 @@
         publication_year: document.getElementById('publication_year'),
         edition: document.getElementById('edition'),
         language: document.getElementById('language'),
-        author: document.getElementById('author_id'),
-        publisher: document.getElementById('publisher_id'),
+        author: document.getElementById('author_id') || document.getElementById('author_name'),
+        publisher: document.getElementById('publisher_id') || document.getElementById('publisher_name'),
     };
     const spinner = document.getElementById('isbn-lookup-spinner');
     const lookupCache = new Map();
@@ -38,11 +38,16 @@
     };
 
     const selectExisting = (select, names) => {
-        if (!select || !Array.isArray(names) || names.length === 0
-            || select.dataset.userEdited === 'true' || fieldHasValue(select)) {
+        if (!select || !Array.isArray(names) || names.length === 0) {
             return false;
         }
 
+        if (!(select instanceof HTMLSelectElement)) {
+            if (names.length === 1) fillIfEmpty(select, names[0]);
+            return false;
+        }
+
+        if (select.dataset.userEdited === 'true' || fieldHasValue(select)) return false;
         if (names.length !== 1) return true;
 
         const expectedName = names[0].trim().toLocaleLowerCase();

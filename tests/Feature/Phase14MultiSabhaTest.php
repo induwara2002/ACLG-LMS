@@ -130,7 +130,11 @@ class Phase14MultiSabhaTest extends TestCase
             $response->assertSee($members[$sabha->code]->full_name);
             foreach ($otherCodes as $otherCode) {
                 $response->assertDontSee($members[$otherCode]->full_name);
-                $this->get(route('admin.books.show', $books[$otherCode]))->assertOk();
+                $bookResponse = $this->get(route('admin.books.show', $books[$otherCode]))->assertNotFound();
+                $bookResponse
+                    ->assertDontSee($books[$otherCode]->title)
+                    ->assertDontSee($members[$otherCode]->full_name)
+                    ->assertDontSee(BookCopy::withoutGlobalScopes()->where('book_id', $books[$otherCode]->id)->value('accession_number'));
             }
         }
     }
@@ -296,8 +300,13 @@ class Phase14MultiSabhaTest extends TestCase
         $this->assertSame([$memberA->id], Member::query()->pluck('id')->all());
         $this->assertSame([$authorA->id], Author::query()->pluck('id')->all());
         $this->assertSame([$publisherA->id], Publisher::query()->pluck('id')->all());
-        $this->assertSame([$categoryA->id], Category::query()->pluck('id')->all());
-        $this->assertSame([$bookA->id, $issueBookA->id, $bookB->id], Book::query()->orderBy('id')->pluck('id')->all());
+        $visibleCategoryIds = Category::query()->pluck('id')->all();
+        $this->assertContains($categoryA->id, $visibleCategoryIds);
+        $this->assertNotContains($categoryB->id, $visibleCategoryIds);
+        $this->assertSame(
+            $sabhaA->books()->orderBy('id')->pluck('id')->all(),
+            Book::query()->orderBy('id')->pluck('id')->all()
+        );
         $this->assertSame([
             $bookA->copies()->firstOrFail()->id,
             $issueBookA->copies()->firstOrFail()->id,
@@ -317,12 +326,15 @@ class Phase14MultiSabhaTest extends TestCase
         $this->assertSame(today()->addDays(9)->toDateString(), $issuedForOwnSabha->due_date->toDateString());
         $this->assertSame('ISSUED', $issueBookA->copies()->firstOrFail()->status);
         $this->get(route('admin.members.show', $memberB))->assertNotFound();
-        $this->get(route('admin.books.show', $bookB))->assertOk();
+        $bookResponse = $this->get(route('admin.books.show', $bookB))->assertNotFound();
+        $bookResponse
+            ->assertDontSee($bookB->title)
+            ->assertDontSee($memberB->full_name)
+            ->assertDontSee(BookCopy::withoutGlobalScopes()->where('book_id', $bookB->id)->value('accession_number'));
         $this->post(route('admin.borrowings.return', $borrowingB))->assertNotFound();
         $this->post(route('admin.borrowings.store'), ['member_id' => $memberB->id, 'book_id' => $bookA->id])->assertNotFound();
         $this->post(route('admin.borrowings.store'), ['member_id' => $memberA->id, 'book_id' => $bookB->id])
-            ->assertRedirect()
-            ->assertSessionHasErrors('issue');
+            ->assertNotFound();
         $this->put(route('admin.members.update', $memberB), [])->assertNotFound();
         $this->delete(route('admin.members.destroy', $memberB))->assertNotFound();
         $this->get(route('admin.payments.show', $paymentB))->assertNotFound();
