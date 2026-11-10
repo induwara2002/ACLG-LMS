@@ -2,7 +2,7 @@
 
 return [
     'issue_book' => 'පොත නිකුත් කිරීම',
-    'borrowing_books' => 'ණයට ගත් පොත්',
+    'borrowing_books' => 'බැහැරට දුන් පොත්',
     'returns' => 'ආපසු භාරදීම්',
     'renewals' => 'අලුත් කිරීම්',
     'issue_date' => 'නිකුත් කළ දිනය',

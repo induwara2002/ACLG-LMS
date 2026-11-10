@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
-<body class="librarian-app">
+<body class="librarian-app {{ request()->routeIs('librarian.dashboard') ? 'dashboard-theme' : '' }}">
     <x-page-loader />
     <div class="librarian-sidebar-backdrop" data-librarian-backdrop></div>
     <aside class="librarian-sidebar" id="librarianSidebar" data-librarian-sidebar aria-label="{{ __('navigation.library_operations') }}">

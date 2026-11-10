@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Observers\AuditableObserver;
 use App\Observers\BookCopyInventoryObserver;
 use App\Services\PradeshiyaSabhaContext;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -33,6 +34,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Paginator::useBootstrapFive();
+
         foreach ([
             User::class,
             Member::class,

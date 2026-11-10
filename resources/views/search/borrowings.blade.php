@@ -90,7 +90,7 @@
                                 <th>{{ __('common.id') }}</th>
                                 <th>{{ __('Member') }}</th>
                                 <th>{{ __('Book') }}</th>
-                                <th>{{ __('Copy') }}</th>
+                                <th>{{ __('Accession Number') }}</th>
                                 <th>{{ __('Status') }}</th>
                                 <th>{{ __('Issue date') }}</th>
                                 <th>{{ __('Due date') }}</th>

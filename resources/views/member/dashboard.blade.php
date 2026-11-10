@@ -3,7 +3,7 @@
 @section('title', __('dashboard.member'))
 
 @section('content')
-<div class="member-dashboard">
+<div class="dashboard-page dashboard-member member-dashboard">
     <header class="member-welcome-panel">
         <div>
             <p class="member-eyebrow">{{ __('dashboard.member_portal') }}</p>
@@ -76,7 +76,7 @@
         @if ($membershipExpiringSoon)<div class="alert alert-warning">{{ __('Your membership expires on :date.', ['date' => $member->expiry_date?->format('Y-m-d')]) }}</div>@endif
         @if ($overdueCount > 0)<div class="alert alert-danger">{{ __('You have :count overdue books.', ['count' => $overdueCount]) }} <a href="{{ route('member.borrowings') }}">{{ __('dashboard.view_my_borrowings') }}</a></div>@endif
         @if ($dueSoonBorrowings->isNotEmpty())<div class="alert alert-info">{{ __(':count books are due within seven days.', ['count' => $dueSoonBorrowings->count()]) }}</div>@endif
-        @if ($outstandingFines->isNotEmpty())<div class="alert alert-warning">{{ __('You have :count pending fines.', ['count' => $outstandingFines->count()]) }} <a href="{{ route('member.fines') }}">{{ __('dashboard.view_my_fines') }}</a></div>@endif
+        @if ($outstandingFines->isNotEmpty())<div class="alert alert-warning">{{ __('You have :count pending fines.', ['count' => $outstandingFines->count()]) }} {{ __('dashboard.outstanding_total') }}: {{ number_format((float) $outstandingFines->sum('amount'), 2) }} <a href="{{ route('member.fines') }}">{{ __('dashboard.view_my_fines') }}</a></div>@endif
         @if ($outstandingCompensation->isNotEmpty())<div class="alert alert-warning">{{ __('You have outstanding compensation for a lost or damaged book.') }} <a href="{{ route('member.payments') }}">{{ __('dashboard.view_my_payments') }}</a></div>@endif
         @unless ($hasMemberAlerts)<p class="member-empty-state">{{ __('dashboard.no_alerts') }}</p>@endunless
     </section>

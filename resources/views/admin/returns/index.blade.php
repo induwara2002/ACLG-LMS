@@ -15,7 +15,7 @@
         <div class="table-responsive">
             <table class="table align-middle">
                 <thead>
-                    <tr><th>{{ __('Issue ID') }}</th><th>{{ __('Member') }}</th><th>{{ __('Membership') }}</th><th>{{ __('Book') }}</th><th>{{ __('Copy') }}</th><th>{{ __('Issue date') }}</th><th>{{ __('Due date') }}</th><th>{{ __('Return date') }}</th><th>{{ __('Status') }}</th><th>{{ __('Fine status') }}</th><th>{{ __('Action') }}</th></tr>
+                    <tr><th>{{ __('Issue ID') }}</th><th>{{ __('Member') }}</th><th>{{ __('Membership') }}</th><th>{{ __('Book') }}</th><th>{{ __('Accession Number') }}</th><th>{{ __('Issue date') }}</th><th>{{ __('Due date') }}</th><th>{{ __('Return date') }}</th><th>{{ __('Status') }}</th><th>{{ __('Fine status') }}</th><th>{{ __('Action') }}</th></tr>
                 </thead>
                 <tbody>
                     @forelse ($borrowings as $borrowing)

@@ -3,6 +3,7 @@
 @section('title', __('dashboard.title').' · '.$libraryName)
 
 @section('content')
+<div class="dashboard-page dashboard-sabha-admin">
     <div class="ps-dashboard-welcome">
         <div>
             <p class="ps-dashboard-eyebrow">{{ $pradeshiyaSabha->name }}</p>
@@ -21,13 +22,21 @@
             ['total_members', $memberStats['total'], route('admin.members.index')],
             ['total_books', $bookStats['copies'], route('admin.books.index')],
             ['available_books', $bookStats['available'], route('admin.books.search', ['availability' => 'AVAILABLE'])],
+            ['active_librarians', $activeLibrarianCount, null],
             ['currently_borrowed', $borrowingStats['issued'], route('admin.borrowings.index')],
             ['overdue_books', $borrowingStats['overdue'], route('admin.borrowings.index', ['status' => 'OVERDUE'])],
+            ['today_issues', $borrowingStats['todayIssues'], route('admin.borrowings.index')],
+            ['today_returns', $borrowingStats['todayReturns'], route('admin.borrowings.index')],
+            ['pending_applications', $pendingApplicationCount, route('admin.member-applications.index')],
             ['unpaid_fines', $alerts['unpaidFineRecords']->count(), route('admin.fines.index')],
             ['lost_books', $operationalStats['lostBooks'], route('admin.lost-damaged.index')],
             ['damaged_books', $operationalStats['damagedBooks'], route('admin.lost-damaged.index')],
         ] as [$label, $value, $href])
-            <a class="sabha-summary-item" href="{{ $href }}"><span>{{ __('dashboard.'.$label) }}</span><strong>{{ number_format($value) }}</strong></a>
+            @if ($href)
+                <a class="sabha-summary-item" href="{{ $href }}"><span>{{ __('dashboard.'.$label) }}</span><strong>{{ number_format($value) }}</strong></a>
+            @else
+                <div class="sabha-summary-item"><span>{{ __('dashboard.'.$label) }}</span><strong>{{ number_format($value) }}</strong></div>
+            @endif
         @endforeach
     </section>
 
@@ -241,6 +250,7 @@
             </div>
         </div>
     </section>
+</div>
 @endsection
 
 @section('scripts')
@@ -256,8 +266,8 @@
                     datasets: [{
                         label: @js(__('Books issued')),
                         data: @json($monthlyStats['issues']),
-                        backgroundColor: 'rgba(48, 112, 222, 0.78)',
-                        hoverBackgroundColor: '#245bb3',
+                        backgroundColor: 'rgba(98, 217, 155, 0.78)',
+                        hoverBackgroundColor: '#087a4d',
                         borderRadius: 5,
                         maxBarThickness: 30,
                     }],
@@ -266,8 +276,8 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { grid: { display: false }, ticks: { color: '#78869a' } },
-                        y: { beginAtZero: true, grid: { color: '#edf0f5' }, ticks: { precision: 0, color: '#78869a' } },
+                        x: { grid: { display: false }, ticks: { color: '#b8d5c7' } },
+                        y: { beginAtZero: true, grid: { color: 'rgba(184, 213, 199, 0.12)' }, ticks: { precision: 0, color: '#b8d5c7' } },
                     },
                 },
             });
@@ -277,7 +287,7 @@
         if (categoryCanvas && window.Chart) {
             const labels = @json($categoryStats['labels']);
             const values = @json($categoryStats['data']);
-            const colors = ['#356fd2', '#36a783', '#e4a63a', '#8066c7', '#46a5b8', '#9aa7b8'];
+            const colors = ['#62d99b', '#ffd54a', '#087b50', '#a4e7c3', '#61b5a0', '#b8d5c7'];
             const chart = new Chart(categoryCanvas, {
                 type: 'doughnut',
                 data: {
@@ -285,7 +295,7 @@
                     datasets: [{
                         data: values,
                         backgroundColor: colors.slice(0, values.length),
-                        borderColor: '#fff',
+                        borderColor: '#075b40',
                         borderWidth: 4,
                         hoverOffset: 5,
                     }],

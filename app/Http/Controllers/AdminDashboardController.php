@@ -6,6 +6,7 @@ use App\Services\DashboardService;
 use App\Models\PradeshiyaSabha;
 use App\Models\PradeshiyaSabhaAdminAssignment;
 use App\Models\Member;
+use App\Models\User;
 use App\Services\PradeshiyaSabhaContext;
 use Illuminate\Http\Request;
 
@@ -30,12 +31,22 @@ class AdminDashboardController extends Controller
         $data['sabhaTotals'] = $user->isMainAdmin() ? [
             'total' => PradeshiyaSabha::query()->count(),
             'active' => PradeshiyaSabha::query()->where('is_active', true)->count(),
+            'libraries' => PradeshiyaSabha::query()
+                ->whereHas('settings', fn ($query) => $query
+                    ->where('key', 'library_name')
+                    ->whereNotNull('value')
+                    ->where('value', '<>', ''))
+                ->count(),
             'activeAdmins' => PradeshiyaSabhaAdminAssignment::query()
                 ->where('is_active', true)
                 ->whereHas('user', fn ($query) => $query->where('is_active', true)->where('role', 'PRADESHIYA_SABHA_ADMIN'))
                 ->count(),
         ] : null;
         if ($user->isPradeshiyaSabhaAdmin()) {
+            $data['activeLibrarianCount'] = $sabha->users()
+                ->where('role', User::ROLE_LIBRARIAN)
+                ->where('is_active', true)
+                ->count();
             $data['pendingApplicationCount'] = Member::query()
                 ->where('pradeshiya_sabha_id', $user->pradeshiya_sabha_id)
                 ->where('status', 'PENDING')

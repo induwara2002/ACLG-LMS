@@ -3,6 +3,7 @@
 @section('title', $pradeshiyaSabha?->name ?? __('Admin Dashboard'))
 
 @section('content')
+<div class="dashboard-page dashboard-admin-dashboard">
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         @if ($pradeshiyaSabha)
@@ -45,18 +46,28 @@
     <div class="row g-3 mb-4">
         <div class="col-sm-6 col-lg-3">
             <div class="card stat-card h-100 p-3">
+                <span class="dashboard-stat-icon" aria-hidden="true">⌂</span>
                 <div class="text-muted small">{{ __('Total Pradeshiya Sabhas') }}</div>
                 <div class="h2 fw-bold mt-2 mb-0">{{ $sabhaTotals['total'] }}</div>
             </div>
         </div>
         <div class="col-sm-6 col-lg-3">
             <div class="card stat-card h-100 p-3">
+                <span class="dashboard-stat-icon" aria-hidden="true">◉</span>
                 <div class="text-muted small">{{ __('Active Pradeshiya Sabhas') }}</div>
                 <div class="h2 fw-bold mt-2 mb-0">{{ $sabhaTotals['active'] }}</div>
             </div>
         </div>
         <div class="col-sm-6 col-lg-3">
             <div class="card stat-card h-100 p-3">
+                <span class="dashboard-stat-icon" aria-hidden="true">▥</span>
+                <div class="text-muted small">{{ __('dashboard.total_libraries') }}</div>
+                <div class="h2 fw-bold mt-2 mb-0">{{ $sabhaTotals['libraries'] }}</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card stat-card h-100 p-3">
+                <span class="dashboard-stat-icon" aria-hidden="true">♙</span>
                 <div class="text-muted small">{{ __('Active Sabha Admins') }}</div>
                 <div class="h2 fw-bold mt-2 mb-0">{{ $sabhaTotals['activeAdmins'] }}</div>
             </div>
@@ -117,6 +128,18 @@
             </tbody></table></div>
         @else
             <p class="empty-state">{{ __('No borrowing activity is recorded yet.') }}</p>
+        @endif
+    </section>
+    <section class="role-dashboard-panel mb-4">
+        <div class="role-section-heading"><div><p class="section-kicker">{{ __('dashboard.system_registrations') }}</p><h2>{{ __('dashboard.recent_registrations') }}</h2></div><a href="{{ route('admin.members.index') }}">{{ __('dashboard.view_all') }}</a></div>
+        @if ($recentMembers->isNotEmpty())
+            <div class="table-responsive"><table class="table align-middle role-data-table mb-0"><thead><tr><th>{{ __('Member') }}</th><th>{{ __('Member ID') }}</th><th>{{ __('Registered') }}</th><th>{{ __('Status') }}</th></tr></thead><tbody>
+                @foreach ($recentMembers as $member)
+                    <tr><td>{{ $member->full_name }}</td><td>{{ $member->member_id }}</td><td>{{ $member->registration_date?->format('Y-m-d') ?? '—' }}</td><td>{{ __($member->effectiveStatus()) }}</td></tr>
+                @endforeach
+            </tbody></table></div>
+        @else
+            <p class="empty-state">{{ __('dashboard.new_member_registrations') }}</p>
         @endif
     </section>
 @endif
@@ -221,6 +244,7 @@
 </div>
 <div class="row g-4 mb-4"><div class="col-lg-6"><div class="card"><div class="card-body"><h2 class="h5">{{ __('Borrowing') }}</h2><div class="row g-3"><div class="col-6">{{ __('Issued') }}<strong class="d-block">{{ $borrowingStats['issued'] }}</strong></div><div class="col-6">{{ __('Overdue') }}<strong class="d-block">{{ $borrowingStats['overdue'] }}</strong></div><div class="col-6">{{ __('Returned') }}<strong class="d-block">{{ $borrowingStats['returned'] }}</strong></div><div class="col-6">{{ __('Renewals') }}<strong class="d-block">{{ $borrowingStats['renewals'] }}</strong></div><div class="col-6">{{ __('Today\'s Issues') }}<strong class="d-block">{{ $borrowingStats['todayIssues'] }}</strong></div><div class="col-6">{{ __('Today\'s Returns') }}<strong class="d-block">{{ $borrowingStats['todayReturns'] }}</strong></div></div></div></div></div><div class="col-lg-6"><div class="card"><div class="card-body"><h2 class="h5">{{ __('Financial totals') }}</h2><div class="row g-2"><div class="col-6">{{ __('Total Payments') }}<strong class="d-block">{{ $financialStats['paymentCount'] }}</strong></div><div class="col-6">{{ __('Registration') }}<br><strong>{{ number_format((float) $financialStats['registration'], 2) }}</strong></div><div class="col-6">{{ __('Membership') }}<br><strong>{{ number_format((float) $financialStats['monthlyMembership'], 2) }}</strong></div><div class="col-6">{{ __('Fines paid') }}<br><strong>{{ number_format((float) $financialStats['overdueFines'], 2) }}</strong></div><div class="col-6">{{ __('Compensation') }}<br><strong>{{ number_format((float) $financialStats['damageCompensation'] + (float) $financialStats['lostCompensation'], 2) }}</strong></div><div class="col-6">{{ __('Outstanding Fines') }}<br><strong>{{ number_format((float) $financialStats['unpaidFines'], 2) }}</strong></div><div class="col-6">{{ __('Outstanding compensation') }}<br><strong>{{ number_format((float) $financialStats['outstandingCompensation'], 2) }}</strong></div></div></div></div></div></div>
 <div class="row g-4"><div class="col-lg-8"><div class="card"><div class="card-body"><h2 class="h5">{{ __('Monthly activity for') }} {{ $year }}</h2><div class="monthly-activity-scroll"><div class="monthly-activity-chart"><canvas id="monthlyActivityChart" role="img" aria-label="{{ __('Monthly activity chart') }}" height="110"></canvas></div></div></div></div></div><div class="col-lg-4"><div class="card"><div class="card-body"><h2 class="h5">{{ __('Alerts') }}</h2>@foreach ([['Overdue', $alerts['overdue']], ['Expired members', $alerts['expiredMembers']], ['Unpaid fines', $alerts['unpaidFines']], ['Unpaid compensation', $alerts['unpaidCompensation']], ['Repair', $alerts['repair']]] as [$label, $value])<div class="d-flex justify-content-between border-bottom py-2"><span>{{ __($label) }}</span><strong>{{ $value }}</strong></div>@endforeach</div></div></div></div>
+</div>
 @endsection
 
 @section('scripts')
@@ -231,9 +255,9 @@
         data: {
             labels: @json($monthlyStats['labels']),
             datasets: [
-                {label: @js(__('Issues')), data: @json($monthlyStats['issues']), borderColor: '#0d6efd'},
-                {label: @js(__('Returns')), data: @json($monthlyStats['returns']), borderColor: '#198754'},
-                {label: @js(__('Members')), data: @json($monthlyStats['members']), borderColor: '#fd7e14'}
+                {label: @js(__('Issues')), data: @json($monthlyStats['issues']), borderColor: '#62d99b'},
+                {label: @js(__('Returns')), data: @json($monthlyStats['returns']), borderColor: '#ffd54a'},
+                {label: @js(__('Members')), data: @json($monthlyStats['members']), borderColor: '#61b5a0'}
             ]
         },
         options: {
@@ -242,10 +266,16 @@
             scales: {
                 x: {
                     ticks: {
+                        color: '#b8d5c7',
                         autoSkip: false,
                         minRotation: 0,
                         maxRotation: 0
-                    }
+                    },
+                    grid: { color: 'rgba(184, 213, 199, 0.12)' }
+                },
+                y: {
+                    ticks: { color: '#b8d5c7', precision: 0 },
+                    grid: { color: 'rgba(184, 213, 199, 0.12)' }
                 }
             }
         }

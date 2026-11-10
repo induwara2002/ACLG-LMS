@@ -31,7 +31,7 @@
                                     <th>{{ __('Incident date') }}</th>
                                     <th>{{ __('Member') }}</th>
                                     <th>{{ __('Book') }}</th>
-                                    <th>{{ __('Copy') }}</th>
+                                    <th>{{ __('Accession Number') }}</th>
                                     <th>{{ __('Status') }}</th>
                                     <th>{{ __('Comp.') }}</th>
                                     <th>{{ __('Action') }}</th>
@@ -84,7 +84,7 @@
                                     <th>{{ __('Incident date') }}</th>
                                     <th>{{ __('Member') }}</th>
                                     <th>{{ __('Book') }}</th>
-                                    <th>{{ __('Copy') }}</th>
+                                    <th>{{ __('Accession Number') }}</th>
                                     <th>{{ __('Type') }}</th>
                                     <th>{{ __('Comp.') }}</th>
                                     <th>{{ __('Action') }}</th>

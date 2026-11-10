@@ -18,7 +18,7 @@
             <div class="col-md-6"><dt>{{ __('Member') }}</dt><dd>{{ $fine->member?->full_name ?? 'Member unavailable' }}</dd></div>
             <div class="col-md-6"><dt>{{ __('Member ID') }}</dt><dd>{{ $fine->member?->member_id ?? '—' }}</dd></div>
             <div class="col-md-6"><dt>{{ __('Reason') }}</dt><dd>{{ __($fine->fine_type) }}</dd></div>
-            <div class="col-md-6"><dt>{{ __('Related borrowing') }}</dt><dd>@if ($fine->borrowing){{ $fine->borrowing->id }} · {{ $fine->borrowing->book?->title ?? 'Book unavailable' }} · {{ __('Copy') }} {{ $fine->borrowing->bookCopy?->accession_number ?? '—' }}@else — @endif</dd></div>
+            <div class="col-md-6"><dt>{{ __('Related borrowing') }}</dt><dd>@if ($fine->borrowing){{ $fine->borrowing->id }} · {{ $fine->borrowing->book?->title ?? 'Book unavailable' }} · {{ __('Accession Number') }} {{ $fine->borrowing->bookCopy?->accession_number ?? '—' }}@else — @endif</dd></div>
             <div class="col-md-6"><dt>{{ __('Issued date') }}</dt><dd>{{ $fine->issued_date?->format('Y-m-d') ?? '—' }}</dd></div>
             <div class="col-md-6"><dt>{{ __('Paid date') }}</dt><dd>{{ $fine->paid_date?->format('Y-m-d') ?? '—' }}</dd></div>
             <div class="col-12"><dt>{{ __('Description') }}</dt><dd>{{ $fine->description ?? '—' }}</dd></div>

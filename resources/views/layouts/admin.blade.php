@@ -10,7 +10,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     </head>
-    <body>
+    <body class="{{ request()->routeIs('admin.dashboard', 'admin.sabhas.dashboard') ? 'dashboard-theme' : '' }}">
             <x-page-loader />
             <div class="app-shell {{ auth()->user()?->isPradeshiyaSabhaAdmin() ? 'sabha-admin-shell' : 'd-flex' }}">
             @if (auth()->user()?->isPradeshiyaSabhaAdmin())

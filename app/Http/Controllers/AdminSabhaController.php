@@ -93,6 +93,12 @@ class AdminSabhaController extends Controller
         $data['sabhaTotals'] = [
             'total' => PradeshiyaSabha::query()->count(),
             'active' => PradeshiyaSabha::query()->where('is_active', true)->count(),
+            'libraries' => PradeshiyaSabha::query()
+                ->whereHas('settings', fn ($query) => $query
+                    ->where('key', 'library_name')
+                    ->whereNotNull('value')
+                    ->where('value', '<>', ''))
+                ->count(),
             'activeAdmins' => PradeshiyaSabhaAdminAssignment::query()
                 ->where('is_active', true)
                 ->whereHas('user', fn ($query) => $query->where('is_active', true)->where('role', 'PRADESHIYA_SABHA_ADMIN'))

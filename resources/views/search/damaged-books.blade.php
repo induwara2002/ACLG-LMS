@@ -76,7 +76,7 @@
                                 <th>{{ __('common.id') }}</th>
                                 <th>{{ __('Member') }}</th>
                                 <th>{{ __('Book') }}</th>
-                                <th>{{ __('Copy') }}</th>
+                                <th>{{ __('Accession Number') }}</th>
                                 <th>{{ __('Damage type') }}</th>
                                 <th>{{ __('Compensation') }}</th>
                                 <th>{{ __('Payment status') }}</th>

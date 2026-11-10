@@ -19,7 +19,7 @@
                     <thead>
                         <tr>
                             <th>{{ __('Book') }}</th>
-                            <th>{{ __('Copy') }}</th>
+                            <th>{{ __('Accession Number') }}</th>
                             <th>{{ __('Lost date') }}</th>
                             <th>{{ __('Compensation') }}</th>
                             <th>{{ __('Status') }}</th>

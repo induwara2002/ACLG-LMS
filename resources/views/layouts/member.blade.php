@@ -9,7 +9,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     </head>
-    <body>
+    <body class="{{ request()->routeIs('member.dashboard') ? 'dashboard-theme' : '' }}">
         <x-page-loader />
         @php
             $portalMember = auth()->user()?->member;

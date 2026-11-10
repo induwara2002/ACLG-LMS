@@ -26,7 +26,7 @@
     </dl></div>
 </section>
 
-<section class="card mb-4"><div class="card-header bg-white"><h2 class="h5 mb-0">{{ __('Current borrowing and history') }}</h2></div><div class="card-body p-0"><div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>{{ __('Book') }}</th><th>{{ __('Copy') }}</th><th>{{ __('Issued') }}</th><th>{{ __('Due') }}</th><th>{{ __('Returned') }}</th><th>{{ __('Status') }}</th><th>{{ __('Renewals') }}</th></tr></thead><tbody>
+<section class="card mb-4"><div class="card-header bg-white"><h2 class="h5 mb-0">{{ __('Current borrowing and history') }}</h2></div><div class="card-body p-0"><div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>{{ __('Book') }}</th><th>{{ __('Accession Number') }}</th><th>{{ __('Issued') }}</th><th>{{ __('Due') }}</th><th>{{ __('Returned') }}</th><th>{{ __('Status') }}</th><th>{{ __('Renewals') }}</th></tr></thead><tbody>
     @forelse ($member->borrowings as $borrowing)
         <tr><td>{{ $borrowing->book?->title ?? 'Book unavailable' }}</td><td>{{ $borrowing->bookCopy?->accession_number ?? '—' }}</td><td>{{ $borrowing->issue_date?->format('Y-m-d') ?? '—' }}</td><td>{{ $borrowing->due_date?->format('Y-m-d') ?? '—' }}</td><td>{{ $borrowing->return_date?->format('Y-m-d') ?? '—' }}</td><td><span class="status-badge">{{ __($borrowing->effectiveStatus()) }}</span></td><td>{{ $borrowing->renewal_count }}</td></tr>
     @empty

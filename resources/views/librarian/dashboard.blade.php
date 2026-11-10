@@ -3,18 +3,18 @@
 @section('title', __('dashboard.librarian'))
 
 @section('content')
-<div class="librarian-dashboard">
+<div class="dashboard-page dashboard-librarian librarian-dashboard">
     <header class="role-dashboard-heading"><div><p class="section-kicker">{{ __('dashboard.daily_operations') }}</p><h1>{{ __('dashboard.good_day') }} {{ auth()->user()->name }}</h1><p>{{ __('dashboard.overview') }}</p><time class="dashboard-local-clock" data-sri-lanka-clock datetime="{{ now()->toIso8601String() }}" aria-label="{{ __('Current Sri Lankan date and time') }}">{{ now()->format('Y-m-d H:i:s') }}</time></div><a class="btn btn-primary" href="{{ route('librarian.issue-books') }}">{{ __('dashboard.issue_book') }}</a></header>
     <section class="role-stat-grid" aria-label="{{ __('dashboard.library_operations') }}">
-        @foreach ([['book_titles', $bookStats['titles']], ['total_copies', $bookStats['copies']], ['available_copies', $bookStats['available']], ['currently_issued', $bookStats['issued']], ['overdue', $operationalStats['overdue']], ['active_members', $memberStats['active']], ['lost_books', $operationalStats['lost']], ['damaged_books', $operationalStats['damaged']]] as [$label, $value])
-            <article class="role-stat-card"><span>{{ __('dashboard.'.$label) }}</span><strong>{{ number_format($value) }}</strong></article>
+        @foreach ([['book_titles', $bookStats['titles'], '▤'], ['total_copies', $bookStats['copies'], '▥'], ['available_copies', $bookStats['available'], '✓'], ['currently_issued', $bookStats['issued'], '↗'], ['today_issues', $operationalStats['todayIssues'], '＋'], ['today_returns', $operationalStats['todayReturns'], '↙'], ['books_due_today', $operationalStats['booksDueToday'], '◷'], ['overdue', $operationalStats['overdue'], '!'], ['active_reservations', $operationalStats['activeReservations'], '◉'], ['active_members', $memberStats['active'], '♙'], ['lost_books', $operationalStats['lost'], '×'], ['damaged_books', $operationalStats['damaged'], '◇']] as [$label, $value, $icon])
+            <article class="role-stat-card"><span class="role-stat-icon" aria-hidden="true">{{ $icon }}</span><span>{{ __('dashboard.'.$label) }}</span><strong>{{ number_format($value) }}</strong></article>
         @endforeach
     </section>
     <section class="role-quick-actions">
         <div class="role-section-heading"><div><p class="section-kicker">{{ __('dashboard.frequently_used') }}</p><h2>{{ __('dashboard.quick_actions') }}</h2></div></div>
         <div class="librarian-action-grid">
             <a href="{{ route('librarian.books.search') }}">{{ __('Book Management') }} <span>{{ __('Search and review the catalogue') }} →</span></a>
-            <a href="{{ route('librarian.members.index') }}">{{ __('Member Management') }} <span>{{ __('Review registered members') }} →</span></a>
+            <a href="{{ route('librarian.members.search') }}">{{ __('dashboard.search_member') }} <span>{{ __('dashboard.find_registered_member') }} →</span></a>
             <a href="{{ route('librarian.issue-books') }}">{{ __('Issue a Book') }} <span>{{ __('dashboard.record_borrowing') }} →</span></a>
             <a href="{{ route('librarian.returns.index') }}">{{ __('Return a Book') }} <span>{{ __('dashboard.open_return_desk') }} →</span></a>
             <a href="{{ route('librarian.borrowings.index', ['status' => 'ISSUED']) }}">{{ __('Issued Books') }} <span>{{ __('View active loans') }} →</span></a>

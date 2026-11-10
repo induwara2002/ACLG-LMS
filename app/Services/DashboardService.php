@@ -64,6 +64,13 @@ class DashboardService
                 'overdue' => Borrowing::whereNull('return_date')->whereDate('due_date', '<', Carbon::today())->count(),
                 'todayIssues' => Borrowing::whereDate('issue_date', Carbon::today())->count(),
                 'todayReturns' => Borrowing::whereDate('return_date', Carbon::today())->count(),
+                'booksDueToday' => Borrowing::query()
+                    ->whereNull('return_date')
+                    ->whereDate('due_date', Carbon::today())
+                    ->count(),
+                'activeReservations' => BookReservation::query()
+                    ->where('status', 'PENDING')
+                    ->count(),
                 'lost' => LostBook::count(),
                 'damaged' => DamageRecord::count(),
                 'repair' => BookCopy::where('status', 'REPAIR')->count(),
