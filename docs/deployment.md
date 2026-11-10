@@ -21,6 +21,7 @@ References:
 - [PHP versions and configuration](https://help.alwaysdata.com/en/docs/web-hosting/languages/php/configuration/)
 - [SSH access](https://help.alwaysdata.com/en/docs/web-hosting/remote-access/ssh/)
 - [MariaDB versions and connection details](https://help.alwaysdata.com/en/docs/web-hosting/databases/mariadb/)
+- [Scheduled tasks](https://help.alwaysdata.com/en/docs/web-hosting/tasks/)
 - [Alwaysdata backups](https://help.alwaysdata.com/en/docs/web-hosting/backups/)
 
 ## Hosting configuration
@@ -75,9 +76,11 @@ References:
    remain on persistent storage between releases.
 7. Enable the site's HTTPS certificate and redirect HTTP to HTTPS in the
    hosting control panel.
-8. Configure a hosting cron entry for `php artisan schedule:run` once per
-   minute if the loan and membership reminder commands should run. Review mail
-   settings and recipients before enabling these commands for real users.
+8. In **Advanced > Scheduled tasks**, configure a command to run every minute:
+   `php /home/<account>/<application-path>/artisan schedule:run` (replace the
+   path with the absolute deployment path). Do this if the loan and membership
+   reminder commands should run. Review mail settings and recipients before
+   enabling these commands for real users.
 
 Laravel already reads production settings from environment variables, uses
 file-backed cache/session defaults, and has MySQL/MariaDB connection settings.
