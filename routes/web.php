@@ -30,6 +30,8 @@ use App\Http\Controllers\AccountPasswordController;
 use App\Http\Controllers\SabhaLogoController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/health', fn () => response()->json(['status' => 'ok']))->name('health');
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/home', fn () => redirect()->route('home'))->name('home.redirect');
 Route::post('/language', [LanguageController::class, 'update'])->name('language.switch');

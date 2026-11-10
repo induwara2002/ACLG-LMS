@@ -29,6 +29,9 @@ Public member applications are created in a pending state and require Sabha staf
 
 The application timezone is `Asia/Colombo`. Email and reminder configuration is documented in [docs/email-alerts.md](docs/email-alerts.md). Backup and member-data protection guidance is in [docs/backup-and-data-protection.md](docs/backup-and-data-protection.md).
 
+Free hosting guidance and production deployment checks are documented in
+[docs/deployment.md](docs/deployment.md).
+
 ## Local setup
 
 1. Copy `.env.example` to `.env` and configure a **dedicated local development database** and application URL.
